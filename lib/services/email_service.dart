@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import '../models/settings_model.dart';
@@ -8,6 +7,7 @@ import '../models/settings_model.dart';
 class EmailService {
   String buildFormattedBody({
     required String title,
+    required List<String> recipients,
     required String rawBody,
     required AppSettings settings,
     required int photoCount,
@@ -28,7 +28,11 @@ class EmailService {
       buffer.writeln('👤 Responsável: ${settings.technicianName}');
     }
 
-    if (settings.includeHeader || settings.includeDateTime || settings.includeTechnicianName) {
+    if (recipients.isNotEmpty) {
+      buffer.writeln('✉️ Destinatários: ${recipients.join(', ')}');
+    }
+
+    if (settings.includeHeader || settings.includeDateTime || settings.includeTechnicianName || recipients.isNotEmpty) {
       buffer.writeln('-' * 40);
     }
 
@@ -38,7 +42,7 @@ class EmailService {
 
     if (photoCount > 0) {
       buffer.writeln('-' * 40);
-      buffer.writeln('📸 Anexos: $photoCount foto(s) anexada(s) a este e-mail.');
+      buffer.writeln('📸 Anexos: $photoCount foto(s) anexada(s) a este relatório.');
     }
 
     buffer.writeln('\n--');
@@ -60,43 +64,30 @@ class EmailService {
 
     final formattedBody = buildFormattedBody(
       title: title,
+      recipients: recipients,
       rawBody: bodyText,
       settings: settings,
       photoCount: photoPaths.length,
     );
 
     try {
-      final Email email = Email(
-        body: formattedBody,
-        subject: emailSubject,
-        recipients: recipients,
-        attachmentPaths: photoPaths,
-        isHTML: false,
-      );
-
-      await FlutterEmailSender.send(email);
+      final List<XFile> xFiles = photoPaths.map((path) => XFile(path)).toList();
+      if (xFiles.isNotEmpty) {
+        await Share.shareXFiles(
+          xFiles,
+          text: formattedBody,
+          subject: emailSubject,
+        );
+      } else {
+        await Share.share(
+          formattedBody,
+          subject: emailSubject,
+        );
+      }
       return true;
     } catch (e) {
-      debugPrint('Tentando fallback via SharePlus devido a: $e');
-      try {
-        final List<XFile> xFiles = photoPaths.map((path) => XFile(path)).toList();
-        if (xFiles.isNotEmpty) {
-          await Share.shareXFiles(
-            xFiles,
-            text: formattedBody,
-            subject: emailSubject,
-          );
-        } else {
-          await Share.share(
-            formattedBody,
-            subject: emailSubject,
-          );
-        }
-        return true;
-      } catch (fallbackError) {
-        debugPrint('Erro no fallback de compartilhamento: $fallbackError');
-        return false;
-      }
+      debugPrint('Erro ao compartilhar relatório: $e');
+      return false;
     }
   }
 }
