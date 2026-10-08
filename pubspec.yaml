@@ -1,0 +1,31 @@
+name: relatorio_rapido
+description: "Aplicativo Android para envio rápido de relatórios de campo com fotos, transcrição por voz e e-mails pré-definidos."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  image_picker: ^1.1.2
+  flutter_email_sender: ^6.0.3
+  share_plus: ^10.1.4
+  speech_to_text: ^7.0.0
+  shared_preferences: ^2.3.5
+  path_provider: ^2.1.5
+  path: ^1.9.0
+  intl: ^0.19.0
+  image: ^4.3.0
+  permission_handler: ^11.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
