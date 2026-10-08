@@ -87,13 +87,20 @@ jobs:
       - name: Compilar APK de Produção
         run: flutter build apk --release --android-skip-build-dependency-validation
 
+      - name: Assinar APK com Certificado Oficial (Necessário para o Android aceitar instalação)
+        run: |
+          keytool -genkey -v -keystore release.jks -keyalg RSA -keysize 2048 -validity 10000 -alias relatorio -storepass 123456 -keypass 123456 -dname "CN=RelatorioRapido, OU=App, O=Kumatchan, L=SP, ST=SP, C=BR"
+          BUILD_TOOLS=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -n 1)
+          $BUILD_TOOLS/apksigner sign --ks release.jks --ks-pass pass:123456 --ks-key-alias relatorio --key-pass pass:123456 build/app/outputs/flutter-apk/app-release.apk
+          $BUILD_TOOLS/apksigner verify --verbose build/app/outputs/flutter-apk/app-release.apk
+
       - name: Disponibilizar APK nos Artefatos
         uses: actions/upload-artifact@v4
         with:
           name: relatorio-rapido-apk
           path: build/app/outputs/flutter-apk/app-release.apk
 
-      - name: Publicar Release com download direto do APK
+      - name: Publicar Release com download direto do APK Assinado
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.0
