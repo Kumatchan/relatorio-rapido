@@ -57,7 +57,7 @@ class RelatorioRapidoApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Colors.blueAccent,
+          seedColor: Colors.blueAccent,
           brightness: Brightness.light,
         ),
         appBarTheme: const AppBarTheme(
@@ -68,7 +68,7 @@ class RelatorioRapidoApp extends StatelessWidget {
       darkTheme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Colors.blueAccent,
+          seedColor: Colors.blueAccent,
           brightness: Brightness.dark,
         ),
       ),
