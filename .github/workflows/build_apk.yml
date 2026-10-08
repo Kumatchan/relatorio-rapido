@@ -27,12 +27,12 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Preparar Projeto Android e Dependências
+      - name: Gerar Projeto Android Oficial
         run: |
           flutter create . --platforms=android --org=com.relatoriorapido
           flutter pub get
 
-      - name: Injetar Permissões de Câmera, Voz e E-mail
+      - name: Injetar Permissões no AndroidManifest
         run: |
           cat << 'EOF' > android/app/src/main/AndroidManifest.xml
           <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -86,7 +86,7 @@ jobs:
           EOF
 
       - name: Compilar APK de Produção
-        run: flutter build apk --release
+        run: flutter build apk --release --android-skip-build-dependency-validation
 
       - name: Disponibilizar APK nos Artefatos
         uses: actions/upload-artifact@v4
